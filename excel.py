@@ -2,6 +2,8 @@ import openpyxl
 import zipfile
 import os
 import time
+import shutil
+import photo
 
 depress_path = './collection'
 
@@ -22,7 +24,7 @@ def get_images(file_path):
         contain_images = []
         for root, dirs, files in os.walk(decompressed_media_path):
             for file in files:
-                temp = (file, os.path.join(root, file))
+                temp = os.path.join(root, file)
                 contain_images.append(temp)
         print(contain_images)
         return contain_images
@@ -30,10 +32,17 @@ def get_images(file_path):
         return []
 
 
+def compress_images(folder, max_length: int, quality):
+    decompressed_media_path = f"{folder}/xl/media"
+    photo.compressImage(decompressed_media_path, decompressed_media_path, True, maxLength=max_length, isSaveJpg=False,
+                        quality=quality)
+
+
 def get_scan_text(file_path):
     wb = openpyxl.load_workbook(file_path)
     sheet_names = wb.sheetnames
-    print(sheet_names)
+    # print(sheet_names)
+    wb.save(file_path)
 
 
 def zip_folder(folder_path):
@@ -54,7 +63,27 @@ def get_current_time():
     return time.strftime("%y%m%d%H%M%S", time.localtime())
 
 
+def compress(excel_path, des_path, max_length, quality):
+    if not os.path.exists(excel_path):
+        print("Excel 文件不存在")
+        return
+
+    if not os.path.exists(des_path):
+        os.makedirs(des_path)
+
+    extracted_path = extract_excel(excel_path)
+    compress_images(extracted_path, max_length, quality)
+    excel_zip_file = zip_folder(extracted_path)
+    get_scan_text(excel_zip_file)
+    target_path = os.path.join(des_path, os.path.basename(excel_zip_file))
+    shutil.copy(excel_zip_file, target_path)
+    shutil.rmtree(extracted_path)
+    os.remove(excel_zip_file)
+    return target_path
+
+
 if __name__ == "__main__":
     extracted_path = extract_excel('./1.xlsx')
-    get_images(extracted_path)
-    zip_folder(extracted_path)
+    compress_images(extracted_path, 200, 75)
+    zip_file = zip_folder(extracted_path)
+    get_scan_text(zip_file)
