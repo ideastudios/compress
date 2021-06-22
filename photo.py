@@ -39,6 +39,9 @@ def compressImage(srcPath, dstPath, isDelete, maxLength: int, isSaveJpg, quality
                 dImg = sImg.resize((int(w / ratio), int(h / ratio)), Image.ANTIALIAS)  # 设置压缩尺寸和选项，注意尺寸要用括号
                 if isDelete:
                     os.remove(srcFile)
+                if isSaveJpg:
+                    print("convert")
+                    dImg.convert('RGB')
                 dImg.save(dstFile, format=format, quality=quality)
 
             except Exception:
@@ -54,5 +57,3 @@ if __name__ == "__main__":
     src_path = './media'
     des_path = './haha'
     compressImage(src_path, des_path, False, 0, True, 75)
-
-

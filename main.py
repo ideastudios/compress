@@ -63,7 +63,7 @@ def welcome():
         compress_path = photo.compressImage(input_path, output_path, False,
                                             max_length, isSaveJpg, quality)
         print("所有图片压缩成功，保存路径:")
-        print(compress_path)
+        print(output_path)
 
 
 if __name__ == '__main__':
