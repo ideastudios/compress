@@ -13,19 +13,26 @@ def compressImage(srcPath, dstPath, isDelete, maxLength: int, isSaveJpg, quality
 
         # 拼接完整的文件或文件夹路径
         srcFile = os.path.join(srcPath, filename)
-        if isSaveJpg:
-            format = "JPEG"
-            newname = os.path.splitext(filename)[0] + ".jpg"
-        else:
-            format = filename.split('.')[-1].upper()
-            newname = filename
-
-        dstFile = os.path.join(dstPath, newname)
 
         # 如果是文件就处理
         if os.path.isfile(srcFile):
-            # if os.path.getsize(srcFile) < 100 * 1024 * 1024:
+            ext = srcFile.split('.')[-1].lower()
+            print(srcFile)
+            print(ext)
+            if ext not in ['jpg', 'jpeg', 'png', 'bmp']:
+                continue
+
+                # if os.path.getsize(srcFile) < 100 * 1024 * 1024:
             #     continue
+            if isSaveJpg:
+                cur_format = "JPEG"
+                newname = os.path.splitext(filename)[0] + ".jpg"
+            else:
+                cur_format = filename.split('.')[-1].upper()
+                newname = filename
+
+            dst_file = os.path.join(dstPath, newname)
+
             try:
                 # 打开原图片缩小后保存，可以用if srcFile.endswith(".jpg")或者split，splitext等函数等针对特定文件压缩
                 sImg = Image.open(srcFile)
@@ -41,15 +48,15 @@ def compressImage(srcPath, dstPath, isDelete, maxLength: int, isSaveJpg, quality
                     os.remove(srcFile)
                 if isSaveJpg:
                     print("convert")
-                    dImg.convert('RGB')
-                dImg.save(dstFile, format=format, quality=quality)
+                    dImg = dImg.convert('RGB')
+                dImg.save(dst_file, format=cur_format, quality=quality)
 
             except Exception:
                 traceback.print_exc()
 
         # 如果是文件夹就递归
         if os.path.isdir(srcFile):
-            compressImage(srcFile, dstFile)
+            compressImage(srcFile, dst_file)
 
 
 if __name__ == "__main__":
